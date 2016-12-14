@@ -2,9 +2,11 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <climits>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 #include "parser.h"
 using namespace std;
 
@@ -65,7 +67,7 @@ void Merge(int l,int m, int r){
     int j=m+1;
     int k=l;
     while(i<=m && j<=r){
-        if(arr[i].getContent()<=arr[j].getContent()){
+        if(arr[i].getContent()<= arr[j].getContent()){
               tmp[k]=arr[i];
               i++;
         }
@@ -76,22 +78,21 @@ void Merge(int l,int m, int r){
         k++;
     }
 
-    if(i>m){
-        for(int t=j;t<=r;t++){
-            tmp[k]=arr[t];
+    while(i<=m){
+            tmp[k]=arr[i];
+            i++;
             k++;
-        }
     }
-    else{
-        for(int u=i;u<=m;u++){
-            tmp[k]=arr[u];
+    while(j<=r){
+            tmp[k]=arr[j];
+            j++;
             k++;
-        }
     }
 
-    for(int h=l;h<=r;h++){
+    for(int h=l;h<k;h++){
           arr[h]=tmp[h];
     }
+    delete[] tmp;
 }
 
 void MergeSort(int l, int r){
@@ -271,13 +272,13 @@ void minHeap::removeNode(Word& word){
 }
 
 
-void HeapSort(){
+void HeapSort(ofstream& outfile){
     minHeap wordList;
     for(int i=0;i<size;i++){
 		    wordList.insert(arr[i]);
     }
     for(int j=0;j<size;j++){
-        cout<<wordList.getMin().getContent()<<" "<<wordList.getMin().getOrder()<<endl;
+        outfile<<wordList.getMin().getContent()<<" "<<wordList.getMin().getOrder()<<endl;
         wordList.removeMin();
     }
 }
@@ -293,37 +294,105 @@ void HeapSort(){
 
 int main( int argc, char** argv )
 {
- 
- 	  AlgParser parser;
+   	AlgParser parser;
  	  AlgTimer timer;
- 	  parser.Parse( "case1.dat" );
-    size=parser.QueryTotalStringCount();
-    arr=new Word[size];
-    int orderNum;
-    
-    
-    for(int t=0;t<parser.QueryTotalStringCount();t++){
-        arr[t].setContent(parser.QueryString(t));
-        orderNum+=parser.QueryNumOfLine(parser.QueryLineNumber(t)-1);
-        orderNum+=parser.QueryWordOrder(t);
-        arr[t].setOrder(orderNum);
-        orderNum=0;
-    }
-    
-    timer.Begin();
-    cout<<"word count: "<<size<<endl;
 
- 	  //InsertionSort(size);
-    //MergeSort(0,size-1);
-    //QuickSort(0,size-1);
-    HeapSort();
-    /*
-    for(int t=0;t<size;t++){
-          cout<<arr[t].getContent()<<" "<<arr[t].getOrder()<<endl;
-     }*/
     
-    cout << "The execution spends " << timer.End() << " seconds" << endl;
+  parser.Parse(argv[1]);
+  ofstream outfile(argv[2]);  
 
-    delete[] arr;
-    return 1;
+     #ifdef insertionSort   
+        size=parser.QueryTotalStringCount();
+        arr=new Word[size];
+        //int orderNum;
+    
+    
+        for(int t=0;t<parser.QueryTotalStringCount();t++){
+            arr[t].setContent(parser.QueryString(t));
+            //orderNum+=parser.QueryNumOfLine(parser.QueryLineNumber(t)-1);
+            //orderNum+=parser.QueryWordOrder(t);
+            arr[t].setOrder(t+1);
+            //orderNum=0;
+        }
+        
+        timer.Begin();
+        outfile<<size<<endl;
+        InsertionSort(size);
+        for(int t=0;t<size;t++){
+          outfile<<arr[t].getContent()<<" "<<arr[t].getOrder()<<endl;
+        }
+         cout<< "The execution spends " << timer.End() << " seconds" << endl;
+       delete[] arr;
+    #endif
+
+    #ifdef mergeSort
+        size=parser.QueryTotalStringCount();
+        arr=new Word[size];
+        //int orderNum;
+    
+    
+        for(int t=0;t<parser.QueryTotalStringCount();t++){
+            arr[t].setContent(parser.QueryString(t));
+            orderNum+=parser.QueryNumOfLine(parser.QueryLineNumber(t)-1);
+            orderNum+=parser.QueryWordOrder(t);
+            arr[t].setOrder(orderNum);
+            orderNum=0;
+        }   
+    
+        timer.Begin();
+        outfile<<size<<endl;
+        MergeSort(0,size-1);
+        for(int t=0;t<size;t++){
+          outfile<<arr[t].getContent()<<" "<<arr[t].getOrder()<<endl;
+       }
+           cout<< "The execution spends " << timer.End() << " seconds" << endl;
+       delete[] arr;
+    #endif
+
+    #ifdef quickSort
+        size=parser.QueryTotalStringCount();
+        arr=new Word[size];
+        //int orderNum;
+    
+    
+        for(int t=0;t<parser.QueryTotalStringCount();t++){
+            arr[t].setContent(parser.QueryString(t));
+            orderNum+=parser.QueryNumOfLine(parser.QueryLineNumber(t)-1);
+            orderNum+=parser.QueryWordOrder(t);
+            arr[t].setOrder(orderNum);
+            orderNum=0;
+        }    
+    
+        timer.Begin();
+        outfile<<size<<endl;
+        QuickSort(0,size-1);
+        for(int t=0;t<size;t++){
+          outfile<<arr[t].getContent()<<" "<<arr[t].getOrder()<<endl;
+         }
+           cout<< "The execution spends " << timer.End() << " seconds" << endl;
+       delete[] arr;
+    #endif
+
+    #ifdef heapSort
+        size=parser.QueryTotalStringCount();
+        arr=new Word[size];
+        //int orderNum;
+    
+    
+        for(int t=0;t<parser.QueryTotalStringCount();t++){
+            arr[t].setContent(parser.QueryString(t));
+            orderNum+=parser.QueryNumOfLine(parser.QueryLineNumber(t)-1);
+            orderNum+=parser.QueryWordOrder(t);
+            arr[t].setOrder(orderNum);
+            orderNum=0;
+        }
+    
+        timer.Begin();
+        outfile<<size<<endl;
+        HeapSort(outfile);
+        cout<< "The execution spends " << timer.End() << " seconds" << endl;
+       delete[] arr;
+    #endif
+    
+  return 1;
 } 
